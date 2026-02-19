@@ -49,8 +49,17 @@ export default function SurveyForm() {
     const [loading, setLoading] = useState(false);
     const [submitted, setSubmitted] = useState(false);
 
-    // Load draft from localStorage on mount
+    // Load draft or check if submitted
     useEffect(() => {
+        const isCompleted = localStorage.getItem('survey_completed');
+        const hasCookie = document.cookie.split(';').some((item) => item.trim().startsWith('survey_completed='));
+
+        if (isCompleted || hasCookie) {
+            setSubmitted(true);
+            setStep(10);
+            return;
+        }
+
         const saved = localStorage.getItem('survey_draft');
         if (saved) {
             try {
@@ -112,13 +121,17 @@ export default function SurveyForm() {
                 body: JSON.stringify(payload),
             });
 
-            if (!res.ok) throw new Error('Failed to submit');
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.error || 'Failed to submit');
+            }
 
             setSubmitted(true);
             localStorage.removeItem('survey_draft');
+            localStorage.setItem('survey_completed', 'true');
             setStep(10); // Thank you screen
-        } catch (error) {
-            alert('Erro ao enviar. Tente novamente.');
+        } catch (error: any) {
+            alert(error.message || 'Erro ao enviar. Tente novamente.');
         } finally {
             setLoading(false);
         }

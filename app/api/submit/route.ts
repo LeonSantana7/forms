@@ -4,6 +4,15 @@ import { supabaseAdmin } from '@/lib/supabase';
 
 export async function POST(req: Request) {
     try {
+        // Check for existing cookie
+        const cookieStore = req.headers.get('cookie') || '';
+        if (cookieStore.includes('survey_completed=true')) {
+            return NextResponse.json(
+                { error: 'Você já respondeu esta pesquisa.' },
+                { status: 400 }
+            );
+        }
+
         const body = await req.json();
         const {
             q1, q2, q3, q4, q5, q6, q7,
@@ -54,7 +63,14 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Failed to submit' }, { status: 500 });
         }
 
-        return NextResponse.json({ success: true });
+        const response = NextResponse.json({ success: true });
+        response.cookies.set('survey_completed', 'true', {
+            httpOnly: false, // Accessible to JS if needed, but mainly for the server to check
+            maxAge: 60 * 60 * 24 * 365, // 1 year
+            path: '/',
+        });
+
+        return response;
     } catch (error) {
         console.error('API Error:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
