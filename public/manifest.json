@@ -1,0 +1,17 @@
+{
+  "name": "Pesquisa Salão e Barbearia",
+  "short_name": "Pesquisa",
+  "description": "Pesquisa rápida para profissionais de beleza.",
+  "start_url": "/?source=pwa",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
